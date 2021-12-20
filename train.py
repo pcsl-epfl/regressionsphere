@@ -69,7 +69,7 @@ def train(args):
         }
     ]
 
-    timeckpt_gen, lossckpt_gen = ckp_init(args, ltr.detach().item())
+    timeckpt_gen, lossckpt_gen = ckp_init(args, alpha * ltr.detach().item())
 
     timeckpt = next(timeckpt_gen)
     lossckpt = next(lossckpt_gen)
