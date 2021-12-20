@@ -31,7 +31,7 @@ def execute(args):
     loss = MSELoss(alpha=alpha)
 
     # define optimizer
-    optimizer = optim.SGD(f.parameters(), lr=args.lr, weight_decay=0)
+    optimizer = optim.SGD(f.parameters(), lr=args.lr * args.h, weight_decay=0)
     optimizer.zero_grad()
 
     # define predictor
@@ -150,25 +150,15 @@ def main():
            TRAINING ARGS
     """
     parser.add_argument("--ptr", metavar="P", type=int, help="size of the training set")
-    parser.add_argument(
-        "--pte", type=int, help="size of the validation set", default=2048
-    )
+    parser.add_argument("--pte", type=int, help="size of the validation set", default=2048)
     parser.add_argument("--reg", type=str, help="l1,l2", default="l2")
-    parser.add_argument(
-        "--l", metavar="lambda", type=float, help="regularisation parameter"
-    )
+    parser.add_argument("--l", metavar="lambda", type=float, help="regularisation parameter")
     """
     	OUTPUT ARGS
     """
-    parser.add_argument(
-        "--maxtime", type=float, help="maximum time in hours", default=23.5
-    )
-    parser.add_argument(
-        "--maxstep", type=int, help="maximum amount of steps of GD", default=20000
-    )
-    parser.add_argument(
-        "--savefreq", type=int, help="frequency of saves in steps", default=1000
-    )
+    parser.add_argument("--maxtime", type=float, help="maximum time in hours", default=2)
+    parser.add_argument("--maxstep", type=int, help="maximum amount of steps of GD", default=20000)
+    parser.add_argument("--savefreq", type=int, help="frequency of saves in steps", default=1000)
 
     parser.add_argument("--pickle", type=str, required=True)
 
