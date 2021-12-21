@@ -13,6 +13,11 @@ torch.set_default_dtype(torch.float64)
 
 
 def train(args):
+    """
+    train a fcnn with (full-batch) gradient descent on the mse loss.
+    :param args: parser arguments.
+    :return: results dictionary.
+    """
 
     args.device = device
 
@@ -100,7 +105,10 @@ def train(args):
                 ote = F(xte)
             lte = alpha * loss(ote, yte).item()
             avg_epoch_time = (time.time() - start_time) / (epoch + 1)
-            print(f"[Epoch : {int(epoch+1)} / {int(args.maxstep)}, ETA: {print_time(avg_epoch_time * (args.maxstep - epoch - 1))}] \t tr_loss: {ltr_val:.02e}, \t te_loss: {lte:.02e}", flush=True)
+            print(f"[Epoch : {int(epoch+1)} / {int(args.maxstep)}, "
+                  f"ETA: {print_time(avg_epoch_time * (args.maxstep - epoch - 1))}] "
+                  f"\t tr_loss: {ltr_val:.02e}, \t te_loss: {lte:.02e}",
+                  flush=True)
             dynamics_loss.append([epoch + 1, ltr_val, lte])
             timeckpt = next(timeckpt_gen)
 

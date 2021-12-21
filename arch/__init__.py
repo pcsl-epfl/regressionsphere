@@ -3,7 +3,17 @@ from torch import nn
 import torch.nn.functional as F
 
 class FC(nn.Module):
+    """
+    Fully connected, one-hidden-layer neural network with ReLU activation.
+    """
     def __init__(self, h, d, scale=None, bias=False, device='cpu'):
+        """
+        :param h: number of hidden units
+        :param d: input space dimension
+        :param scale: scale of the output function: `1/h` for the mean-field limit, `1/sqrt(h)` for the NTK limit.
+        :param bool bias: first layer bias flag.
+        :param device: cpu or cuda.
+        """
         super(FC, self).__init__()
 
         self.d = d
