@@ -1,5 +1,5 @@
 import copy
-
+import time
 import torch
 import torch.optim as optim
 
@@ -47,7 +47,7 @@ def train(args):
             "test": lte,
             "f": copy.deepcopy(f.state_dict()),
         }
-        print("Epoch : ", epoch + 1, "saving network ...")
+        print("Epoch : ", epoch + 1, "saving network ...", flush=True)
         dynamics_state.append(state)
 
     otr = F(xtr)
@@ -74,7 +74,11 @@ def train(args):
     timeckpt = next(timeckpt_gen)
     lossckpt = next(lossckpt_gen)
 
+    start_time = time.time()
     for epoch in range(args.maxstep):
+
+        if torch.isnan(ltr):
+            break
 
         ltr.backward()
         optimizer.step()
@@ -95,7 +99,8 @@ def train(args):
             with torch.no_grad():
                 ote = F(xte)
             lte = alpha * loss(ote, yte).item()
-            print(f"Epoch : {int(epoch+1)} / {int(args.maxstep)} \t tr_loss: {ltr_val:.02e}, \t te_loss: {lte:.02e}")
+            avg_epoch_time = (time.time() - start_time) / (epoch + 1)
+            print(f"[Epoch : {int(epoch+1)} / {int(args.maxstep)}, ETA: {print_time(avg_epoch_time * (args.maxstep - epoch - 1))}] \t tr_loss: {ltr_val:.02e}, \t te_loss: {lte:.02e}", flush=True)
             dynamics_loss.append([epoch + 1, ltr_val, lte])
             timeckpt = next(timeckpt_gen)
 

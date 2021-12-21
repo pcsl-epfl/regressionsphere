@@ -21,7 +21,7 @@ def main():
     	ARCHITECTURE ARGS
     """
     parser.add_argument("--h", metavar="H", type=int, help="width of the f network")
-    parser.add_argument("--netseed", type=int, help="seed for the network")
+    parser.add_argument("--netseed", type=int, help="seed for the network", default=-1)
     parser.add_argument("--alpha", type=float, metavar="alpha", default=1e0)
     parser.add_argument("--lr", type=float, metavar="lr", help="lr", default=1.0)
     parser.add_argument("--bias", type=int, default=0, help="bias")
@@ -35,13 +35,17 @@ def main():
     """
     	OUTPUT ARGS
     """
-    parser.add_argument("--maxtime", type=float, help="maximum time in hours", default=2)
+    # parser.add_argument("--maxtime", type=float, help="maximum time in hours", default=2)
     parser.add_argument("--maxstep", type=int, help="maximum amount of steps of GD", default=20000)
     parser.add_argument("--savefreq", type=int, help="frequency of saves in steps", default=1000)
 
     parser.add_argument("--pickle", type=str, required=True)
 
     args = parser.parse_args()
+
+    if args.netseed == -1:
+        args.netseed = args.dataseed
+
     torch.save(args, args.pickle)
     saved = False
     try:

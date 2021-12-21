@@ -26,3 +26,19 @@ def ckp_init(args, init_loss):
     lossckpt_gen = loss_checkpoint(args.alpha * init_loss)
 
     return timeckpt_gen, lossckpt_gen
+
+# timing function
+def print_time(elapsed_time):
+    elapsed_seconds = round(elapsed_time)
+
+    m, s = divmod(elapsed_seconds, 60)
+    h, m = divmod(m, 60)
+
+    elapsed_time = []
+    if h > 0:
+        elapsed_time.append(f'{h}h')
+    if not (h == 0 and m == 0):
+        elapsed_time.append(f'{m:02}m')
+    elapsed_time.append(f'{s:02}s')
+
+    return ''.join(elapsed_time)

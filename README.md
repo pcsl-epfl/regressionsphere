@@ -1,1 +1,1 @@
-# regressionsphere
+## Regression on the sphere model
