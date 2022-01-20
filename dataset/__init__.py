@@ -29,12 +29,16 @@ def init_dataset(args):
         r = torch.rand(p, 1).pow(1 / d)
         x = r * u / norm
     elif args.pofx == "mnist_pca":
+        transform = torchvision.transforms.ToTensor()
         tr = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=True, download=True, transform=transform)
         te = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=False, transform=transform)
-        x, y, i = intertwine_labels(*dataset_to_tensors(list(tr) + list(te)))
+        x, target = dataset_to_tensors(list(tr) + list(te))
+        assert p <= len(target), "P too large, not enough data-samples!"
+        perm = torch.randperm(len(target))[:p]
+        x, target = x[perm].to(args.device), target[perm].to(args.device)
         x = center_normalize(x)
         x = pca(x, d, whitening=True)
-        x, target, _ = intertwine_split(x, y, i, [p], [args.dataseed], y.unique())[0]
+        target = (2 * (target > 4) - 1)
     else:
         raise NotImplementedError
 
