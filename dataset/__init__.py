@@ -1,4 +1,5 @@
-import torch
+import torchvision
+from .utils import *
 
 def init_dataset(args):
     """
@@ -14,7 +15,11 @@ def init_dataset(args):
     pte = args.pte
     p = ptr + pte
 
+    transform = torchvision.transforms.ToTensor()
+
     torch.manual_seed(args.dataseed)
+
+    target = None
 
     if args.pofx == 'normal':
         x = torch.randn(p, d, device=args.device)
@@ -23,13 +28,21 @@ def init_dataset(args):
         norm = u.norm(dim=1, keepdim=True)
         r = torch.rand(p, 1).pow(1 / d)
         x = r * u / norm
+    elif args.pofx == "mnist_pca":
+        tr = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=True, download=True, transform=transform)
+        te = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=False, transform=transform)
+        x, y, i = intertwine_labels(*dataset_to_tensors(list(tr) + list(te)))
+        x = center_normalize(x)
+        x = pca(x, d, whitening=True)
+        x, target, _ = intertwine_split(x, y, i, [p], [args.dataseed], y.unique())[0]
     else:
         raise NotImplementedError
 
-    if args.target == 'norm':
-        target = torch.norm(x, dim=1)
-    else:
-        raise NotImplementedError
+    if target is None:
+        if args.target == 'norm':
+            target = torch.norm(x, dim=1)
+        else:
+            raise NotImplementedError
 
     xtr = x[:ptr]
     ytr = target[:ptr]
@@ -37,3 +50,5 @@ def init_dataset(args):
     yte = target[ptr:]
 
     return xtr, ytr, xte, yte
+
+

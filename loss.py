@@ -9,7 +9,7 @@ class MSELoss(torch.nn.Module):
         self.alpha = alpha
 
     def forward(self, output, target):
-        mse_loss = 0.5 * (output - target) ** 2 / self.alpha
+        mse_loss = 0.5 * (output - target) ** 2 / self.alpha ** 1
         return mse_loss.mean()
 
 def regularize(loss, f, args):

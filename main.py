@@ -2,7 +2,7 @@ import os
 import argparse
 
 import torch
-from train import train
+from train import run_training
 
 def main():
     parser = argparse.ArgumentParser(
@@ -29,14 +29,14 @@ def main():
            TRAINING ARGS
     """
     parser.add_argument("--ptr", metavar="P", type=int, help="size of the training set")
-    parser.add_argument("--pte", type=int, help="size of the validation set", default=2048)
+    parser.add_argument("--pte", type=int, help="size of the validation set", default=8192)
     parser.add_argument("--reg", type=str, help="l1,l2", default="l2")
     parser.add_argument("--l", metavar="lambda", type=float, help="regularisation parameter")
     """
     	OUTPUT ARGS
     """
     # parser.add_argument("--maxtime", type=float, help="maximum time in hours", default=2)
-    parser.add_argument("--maxstep", type=int, help="maximum amount of steps of GD", default=20000)
+    parser.add_argument("--maxstep", type=float, help="maximum amount of steps of GD", default=20000)
     parser.add_argument("--savefreq", type=int, help="frequency of saves in steps", default=1000)
 
     parser.add_argument("--pickle", type=str, required=True)
@@ -45,11 +45,14 @@ def main():
 
     if args.netseed == -1:
         args.netseed = args.dataseed
+    if args.pte == -1:
+        args.pte = args.ptr * 4
+    args.maxstep = int(args.maxstep)
 
     torch.save(args, args.pickle)
     saved = False
     try:
-        for res in train(args):
+        for res in run_training(args):
             with open(args.pickle, "wb") as f:
                 torch.save(args, f, _use_new_zipfile_serialization=False)
                 torch.save(res, f, _use_new_zipfile_serialization=False)
