@@ -29,7 +29,6 @@ def init_dataset(args):
         r = torch.rand(p, 1).pow(1 / d)
         x = r * u / norm
     elif args.pofx == "mnist_pca":
-        transform = torchvision.transforms.ToTensor()
         tr = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=True, download=True, transform=transform)
         te = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=False, transform=transform)
         x, target = dataset_to_tensors(list(tr) + list(te))

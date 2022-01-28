@@ -23,8 +23,11 @@ def main():
     parser.add_argument("--h", metavar="H", type=int, help="width of the f network")
     parser.add_argument("--netseed", type=int, help="seed for the network", default=-1)
     parser.add_argument("--alpha", type=float, metavar="alpha", default=1e0)
+    parser.add_argument("--minus_f0", type=int, default=1)
     parser.add_argument("--lr", type=float, metavar="lr", help="lr", default=1.0)
     parser.add_argument("--bias", type=int, default=0, help="bias")
+    parser.add_argument("--init_w2", type=str, default='normal', help="second layer weights initialization")
+    parser.add_argument("--fibonacci", type=int, default=0, help="put weights on Fibonacci lattice")
     """
            TRAINING ARGS
     """

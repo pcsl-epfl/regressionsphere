@@ -25,7 +25,7 @@ def run_training(args):
 
     # initialize network function
     torch.manual_seed(args.netseed)
-    f = FC(args.h, args.d, bias=args.bias).to(device)
+    f = FC(args.h, args.d, bias=args.bias, w2_init=args.init_w2, fibonacci=args.fibonacci, device=device)
     f0 = copy.deepcopy(f)
 
     # initialize loss function
@@ -38,7 +38,10 @@ def run_training(args):
 
     # define predictor
     def F(x):
-        return alpha * (f(x) - f0(x))
+        if args.minus_f0:
+            return alpha * (f(x) - f0(x))
+        else:
+            return alpha * f(x)
 
     # save the network
     def save_net():
