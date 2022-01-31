@@ -25,7 +25,7 @@ def run_training(args):
 
     # initialize network function
     torch.manual_seed(args.netseed)
-    f = FC(args.h, args.d, bias=args.bias, w2_init=args.init_w2, fibonacci=args.fibonacci, device=device)
+    f = FC(args.h, args.d, bias=args.bias, w1_init=args.init_w1, w2_init=args.init_w2, device=device)
     f0 = copy.deepcopy(f)
 
     # initialize loss function
@@ -95,6 +95,7 @@ def run_training(args):
         otr = F(xtr)
         ltr = loss(otr, ytr)
         if args.l:
+            args.l *= args.l_step
             regularize(ltr, f, args)
 
         ltr_val = alpha * ltr.detach().item()

@@ -67,7 +67,7 @@ def inverse_increasing(
         approx = func(mid)
     return mid
 
-def uniform_hypersphere(d: int, n: int) -> List[List[float]]:
+def fibonacci_lattice(d: int, n: int) -> List[List[float]]:
     """Generate n points over the d dimensional hypersphere"""
     assert d > 1
     assert n > 0

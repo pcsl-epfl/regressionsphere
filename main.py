@@ -26,8 +26,8 @@ def main():
     parser.add_argument("--minus_f0", type=int, default=1)
     parser.add_argument("--lr", type=float, metavar="lr", help="lr", default=1.0)
     parser.add_argument("--bias", type=int, default=0, help="bias")
+    parser.add_argument("--init_w1", type=str, default='normal', help="first layer weights initialization")
     parser.add_argument("--init_w2", type=str, default='normal', help="second layer weights initialization")
-    parser.add_argument("--fibonacci", type=int, default=0, help="put weights on Fibonacci lattice")
     """
            TRAINING ARGS
     """
@@ -35,6 +35,7 @@ def main():
     parser.add_argument("--pte", type=int, help="size of the validation set", default=8192)
     parser.add_argument("--reg", type=str, help="l1,l2", default="l2")
     parser.add_argument("--l", metavar="lambda", type=float, help="regularisation parameter")
+    parser.add_argument("--l_final", type=float, default=-1, help="final regularisation parameter")
     """
     	OUTPUT ARGS
     """
@@ -51,6 +52,11 @@ def main():
     if args.pte == -1:
         args.pte = args.ptr * 4
     args.maxstep = int(args.maxstep)
+    args.l_init = args.l
+    if args.l_final != -1:
+        args.l_step = (args.l_final / args.l) ** (1 / args.maxstep)
+    else:
+        args.l_step = 1
 
     torch.save(args, args.pickle)
     saved = False

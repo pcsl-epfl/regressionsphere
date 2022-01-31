@@ -1,13 +1,13 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
-from .fibonacci import uniform_hypersphere
+from .fibonacci import fibonacci_lattice
 
 class FC(nn.Module):
     """
     Fully connected, one-hidden-layer neural network with ReLU activation.
     """
-    def __init__(self, h, d, scale=None, bias=False, device='cpu', w2_init='normal', fibonacci=False):
+    def __init__(self, h, d, scale=None, bias=False, device='cpu', w1_init='normal', w2_init='normal'):
         """
         :param h: number of hidden units
         :param d: input space dimension
@@ -22,10 +22,16 @@ class FC(nn.Module):
             self.scale = 1 / h
         else:
             self.scale = scale
-        if fibonacci:
-            self.w1 = uniform_hypersphere(d, h).to(device)
+        assert w1_init in ['normal', 'unitary', 'fibonacci', 'small']
+        if w1_init == 'fibonacci':
+            self.w1 = fibonacci_lattice(d, h).to(device)
         else:
-            self.w1 = nn.Parameter(torch.randn(h, d, device=device))
+            w1 = torch.randn(h, d, device=device)
+            if w1_init == 'small':
+                w1 *= 1e-50
+            if w1_init == 'unitary':
+                w1 = w1 / w1.norm(dim=-1, keepdim=True)
+            self.w1 = nn.Parameter(w1)
 
         if bias:
             self.b1 = nn.Parameter(torch.randn(h))
