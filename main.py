@@ -28,6 +28,8 @@ def main():
     parser.add_argument("--bias", type=int, default=0, help="bias")
     parser.add_argument("--init_w1", type=str, default='normal', help="first layer weights initialization")
     parser.add_argument("--init_w2", type=str, default='normal', help="second layer weights initialization")
+    parser.add_argument("--train_w1", type=int, default=1, help="train first layer weights")
+    parser.add_argument("--w1_onsphere", type=int, default=0, help="constrain w1 on the sphere")
     """
            TRAINING ARGS
     """
@@ -35,7 +37,9 @@ def main():
     parser.add_argument("--pte", type=int, help="size of the validation set", default=8192)
     parser.add_argument("--reg", type=str, help="l1,l2", default="l2")
     parser.add_argument("--l", metavar="lambda", type=float, help="regularisation parameter")
-    parser.add_argument("--l_final", type=float, default=-1, help="final regularisation parameter")
+    parser.add_argument("--l_decay", type=str, default='pow_law', help="lr decay")
+    parser.add_argument("--l_decay_param", type=float, default=2, help="lr decay parameter")
+    parser.add_argument("--count_atoms", type=int, default=0, help="count the number of atoms")
     """
     	OUTPUT ARGS
     """
@@ -52,11 +56,11 @@ def main():
     if args.pte == -1:
         args.pte = args.ptr * 4
     args.maxstep = int(args.maxstep)
-    args.l_init = args.l
-    if args.l_final != -1:
-        args.l_step = (args.l_final / args.l) ** (1 / args.maxstep)
-    else:
-        args.l_step = 1
+    # args.l_init = args.l
+    # if args.l_final != -1:
+    #     args.l_step = (args.l_final / args.l) ** (1 / args.maxstep)
+    # else:
+    #     args.l_step = 1
 
     torch.save(args, args.pickle)
     saved = False

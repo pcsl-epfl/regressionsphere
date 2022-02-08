@@ -7,7 +7,7 @@ class FC(nn.Module):
     """
     Fully connected, one-hidden-layer neural network with ReLU activation.
     """
-    def __init__(self, h, d, scale=None, bias=False, device='cpu', w1_init='normal', w2_init='normal'):
+    def __init__(self, h, d, scale=None, bias=False, device='cpu', w1_init='normal', w2_init='normal', w1_onsphere=False):
         """
         :param h: number of hidden units
         :param d: input space dimension
@@ -18,6 +18,7 @@ class FC(nn.Module):
         super(FC, self).__init__()
 
         self.d = d
+        self.w1_onsphere = w1_onsphere
         if scale is None:
             self.scale = 1 / h
         else:
@@ -31,6 +32,7 @@ class FC(nn.Module):
                 w1 *= 1e-50
             if w1_init == 'unitary':
                 w1 = w1 / w1.norm(dim=-1, keepdim=True)
+
             self.w1 = nn.Parameter(w1)
 
         if bias:
@@ -45,7 +47,13 @@ class FC(nn.Module):
             raise ValueError('Weights initialization must be either `normal` or `zero`!')
 
     def forward(self, x):
-        x = F.linear(x, self.w1, bias=self.b1) / self.d ** .5
+        if self.w1_onsphere:
+            w1 = self.w1 / self.w1.norm(dim=-1, keepdim=True)
+            scale1 = 1
+        else:
+            w1 = self.w1
+        scale1 = self.d ** .5
+        x = F.linear(x, w1, bias=self.b1) / scale1
         x = F.relu(x)
         x = F.linear(x, self.w2, bias=None)
         return x.squeeze() * self.scale

@@ -1,10 +1,12 @@
 import copy
 import time
+import numpy as np
 import torch
 import torch.optim as optim
+# from optim import SGD_step
 
 from utils import *
-from loss import MSELoss, regularize
+from loss import MSELoss, regularize, lambda_decay
 from dataset import init_dataset
 from arch import FC
 
@@ -25,7 +27,10 @@ def run_training(args):
 
     # initialize network function
     torch.manual_seed(args.netseed)
-    f = FC(args.h, args.d, bias=args.bias, w1_init=args.init_w1, w2_init=args.init_w2, device=device)
+    f = FC(args.h, args.d, bias=args.bias, w1_init=args.init_w1, w1_onsphere=args.w1_onsphere, w2_init=args.init_w2, device=device)
+    if not args.train_w1:
+        for param in [p for p in f.parameters()][:-1]:
+            param.requires_grad = False
     f0 = copy.deepcopy(f)
 
     # initialize loss function
@@ -57,9 +62,20 @@ def run_training(args):
         print("Epoch : ", epoch + 1, "saving network ...", flush=True)
         dynamics_state.append(state)
 
+    def count_atoms():
+        if args.count_atoms:
+            w1 = f.w1.detach() * args.alpha ** .5
+            w2 = f.w2.detach() * args.alpha ** .5
+            norm = (w1.norm(dim=-1) * w2.abs())
+            hist = torch.histogram(torch.atan2(*w1.t()[:2]).cpu(), weight=norm[0].cpu(), bins=torch.linspace(0, math.pi, 512), density=True).hist
+            a = np.unique((w1[norm[0] > .01] @ xtr.t()).sign().cpu(), axis=0, return_counts=True)[1]
+            return sum(a > 1), hist
+        else:
+            return None, None
+
     otr = F(xtr)
     ltr = loss(otr, ytr)
-    regularize(ltr, f, args)
+    regularize(ltr, f, 0.5, args)
 
     with torch.no_grad():
         ote = F(xte)
@@ -76,6 +92,8 @@ def run_training(args):
         }
     ]
 
+    dynamics_atoms = []
+
     timeckpt_gen, lossckpt_gen = ckp_init(args, alpha * ltr.detach().item())
 
     timeckpt = next(timeckpt_gen)
@@ -87,6 +105,7 @@ def run_training(args):
         if torch.isnan(ltr):
             break
 
+        # SGD_step(f.w1, f.w2, ltr, lr=args.lr * args.h, proj_sphere=args.w1_onsphere)
         ltr.backward()
         optimizer.step()
 
@@ -95,13 +114,16 @@ def run_training(args):
         otr = F(xtr)
         ltr = loss(otr, ytr)
         if args.l:
-            args.l *= args.l_step
-            regularize(ltr, f, args)
+            l = lambda_decay(args, epoch)
+            regularize(ltr, f, l, args)
 
         ltr_val = alpha * ltr.detach().item()
 
         if ltr_val <= lossckpt:
             save_net()
+            if args.count_atoms:
+                na, hist = count_atoms()
+                dynamics_atoms.append({"N_A": na, "hist": hist})
             lossckpt = next(lossckpt_gen)
 
         if (epoch + 1) == timeckpt:
@@ -114,6 +136,10 @@ def run_training(args):
                   f"\t tr_loss: {ltr_val:.02e}, \t te_loss: {lte:.02e}",
                   flush=True)
             dynamics_loss.append([epoch + 1, ltr_val, lte])
+            if args.count_atoms:
+                na, hist = count_atoms()
+                dynamics_atoms.append({"N_A": na, "hist": hist})
+            lossckpt = next(lossckpt_gen)
             timeckpt = next(timeckpt_gen)
 
     if dynamics_state[len(dynamics_state) - 1]["t"] != args.maxstep:
@@ -135,7 +161,6 @@ def run_training(args):
         "lckpt": lossckpt,
     }
 
-    res = {"args": args, "dynamics": dynamics_loss, "f": f_info, "learn": learning_params}
+    res = {"args": args, "dynamics": dynamics_loss, "atoms": dynamics_atoms, "f": f_info, "learn": learning_params}
 
     yield res
-
