@@ -1,6 +1,7 @@
 import torchvision
 from .utils import *
 from .gaussian_random_fields import gram_kn, grf_generator
+from .teacher import FcTeacher
 import scipy.io
 import math
 
@@ -25,7 +26,7 @@ def init_dataset(args):
     target = None
 
     if args.pofx == 'normal':
-        x = torch.randn(p, d, device=args.device)
+        x = torch.randn(p, d, device=args.device) / d ** .5
     elif args.pofx == 'uniform':
         u = torch.randn(p, d, device=args.device)
         norm = u.norm(dim=1, keepdim=True)
@@ -44,14 +45,31 @@ def init_dataset(args):
         x = center_normalize(x)
         x = pca(x, d, whitening=True)
         target = (2 * (target > 4) - 1)
+    elif args.pofx == "mnist":
+        tr = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=True, download=True,
+                                               transform=transform)
+        te = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=False, transform=transform)
+        x, target = dataset_to_tensors(list(tr) + list(te))
+        assert p <= len(target), "P too large, not enough data-samples!"
+        perm = torch.randperm(len(target))[:p]
+        x, target = x[perm], target[perm]
+        x = center_normalize(x).flatten(-2).to(args.device)
+        target = torch.tensor([t in [0, 1, 2, 3, 4] for t in target], dtype=int, device=args.device).mul(2).add(-1)
+    elif args.pofx == "fashion-mnist":
+        tr = torchvision.datasets.FashionMNIST('~/.torchvision/datasets/FashionMNIST', train=True, download=True, transform=transform)
+        te = torchvision.datasets.FashionMNIST('~/.torchvision/datasets/FashionMNIST', train=False, transform=transform)
+        x, target = dataset_to_tensors(list(tr) + list(te))
+        assert p <= len(target), "P too large, not enough data-samples!"
+        perm = torch.randperm(len(target))[:p]
+        x, target = x[perm], target[perm]
+        x = center_normalize(x).flatten(-2).to(args.device)
+        target = torch.tensor([t in [0, 2, 3, 4, 6] for t in target], dtype=int, device=args.device).mul(2).add(-1)
     elif args.pofx == '1d':
         assert args.d == 2
         mat = scipy.io.loadmat(f'/home/lpetrini/git/regressionsphere/dataset/1d/eric_P{args.ptr}.mat')
 
         xtr = torch.from_numpy(mat['xd']).to(args.device)[:, 0]
-        # ytr = torch.from_numpy(mat['fsd'][:, 0]).to(args.device)
         xte = torch.from_numpy(mat['x'][0]).to(args.device)
-        # yte = torch.from_numpy(mat['fs'][:, 0]).to(args.device)
 
         def angleto2d(xt):
             theta = 2 * math.pi * xt
@@ -72,6 +90,10 @@ def init_dataset(args):
         elif 'grf' in args.target:
             teacher_cov = gram_kn(x, x, degree=int(args.target[-1]))
             target = grf_generator(teacher_cov, args.device)
+        elif args.target == 'teacher':
+            torch.manual_seed(0)
+            t = FcTeacher(d=args.d, h=1e6, a=args.act_power, act=args.teacher_act, device=args.device)
+            target = t(x)
         else:
             raise NotImplementedError
 

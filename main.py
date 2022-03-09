@@ -16,20 +16,22 @@ def main():
     parser.add_argument("--dataseed", type=int, help="dataset seed", default=0)
     parser.add_argument("--pofx", type=str, help="pdf of x", default="normal")
     parser.add_argument("--target", type=str, help="target function", default="norm")
+    parser.add_argument("--teacher_act", type=str, default='abs', help="activation [relu, abs]")
+    parser.add_argument("--act_power", type=float, default=2, help="power for the teacher activation")
 
     """
     	ARCHITECTURE ARGS
     """
     parser.add_argument("--h", metavar="H", type=int, help="width of the f network")
     parser.add_argument("--netseed", type=int, help="seed for the network", default=-1)
-    parser.add_argument("--alpha", type=float, metavar="alpha", default=1e0)
+    parser.add_argument("--alpha", type=float, metavar="alpha", default=1.)
     parser.add_argument("--minus_f0", type=int, default=1)
     parser.add_argument("--lr", type=float, metavar="lr", help="lr", default=1.0)
     parser.add_argument("--bias", type=int, default=0, help="bias")
     parser.add_argument("--init_w1", type=str, default='normal', help="first layer weights initialization")
     parser.add_argument("--init_w2", type=str, default='normal', help="second layer weights initialization")
     parser.add_argument("--train_w1", type=int, default=1, help="train first layer weights")
-    parser.add_argument("--w1_onsphere", type=int, default=0, help="constrain w1 on the sphere")
+    parser.add_argument("--w1_norm1", type=int, default=0, help="constrain w1 on the sphere")
     """
            TRAINING ARGS
     """
@@ -37,7 +39,7 @@ def main():
     parser.add_argument("--pte", type=int, help="size of the validation set", default=8192)
     parser.add_argument("--reg", type=str, help="l1,l2", default="l2")
     parser.add_argument("--l", metavar="lambda", type=float, help="regularisation parameter")
-    parser.add_argument("--l_decay", type=str, default='pow_law', help="lr decay")
+    parser.add_argument("--l_decay", type=str, default='none', help="lr decay")
     parser.add_argument("--l_decay_param", type=float, default=2, help="lr decay parameter")
     parser.add_argument("--count_atoms", type=int, default=0, help="count the number of atoms")
     """

@@ -3,7 +3,7 @@ import math
 
 class MSELoss(torch.nn.Module):
     """
-    Mean Squared Error loss function: l = 1/P \sum_i (y_i - \hat{y_i}) ^ 2 / (2 * alpha).
+        Mean Squared Error loss function: l = 1/P \sum_i (y_i - \hat{y_i}) ^ 2 / (2 * alpha).
     """
     def __init__(self, alpha):
         super(MSELoss, self).__init__()
@@ -21,11 +21,16 @@ def regularize(loss, f, l, args):
     :param args: parser arguments
     """
     if args.reg == "l1":
-        if not args.w1_onsphere:
-            loss += l / args.h * (f.w1.norm(p=2, dim=-1) * f.w2.abs()).sum()
+        if not args.w1_norm1:
+            if f.b:
+                bn = f.b.pow(2)
+            else:
+                bn = 0
+            loss += l / args.h * (f.w1.norm(p=2, dim=-1).add(bn) * f.w2.abs()).sum()
         else:
             loss += l / args.h * f.w2.abs().sum()
-
+            if f.b:
+                loss += l / args.h * f.b.abs().sum()
     elif args.reg == "l2":
         for p in f.parameters():
             loss += l / (args.h * 2) * p.pow(2).sum()
@@ -42,5 +47,37 @@ def lambda_decay(args, epoch):
         return 1 / (1 + epoch ** args.l_decay_param)
     elif args.l_decay == 'pl_exp':
         return args.l * math.exp(1 - epoch ** .5 / args.ptr ** .7) / (1 + epoch)
+    elif args.l_decay == 'none':
+        return args.l
+    elif args.l_decay == 'large_to_zero':
+        raise ValueError
+        '''
+            - save `min_loss`
+            - wait 1 / lambda steps s.t. loss > min_loss
+            - lambda <- 0
+            - wait 1e5 steps
+            - STOP
+        '''
     else:
         raise ValueError("Regularization decay must be `pow_law` or `pl_exp`.")
+
+class Large2zeroLambdaScheduler:
+    def __init__(self, l):
+
+        self.l = l
+        self.min_loss = 1e10
+        self.internal_step = 0
+        self.max_internal_step = int(2e6)
+        self.time_from_min = 0
+
+    def step(self, loss):
+        if self.time_from_min < 10 / self.l:
+            if loss >= self.min_loss:
+                self.time_from_min += 1
+            else:
+                self.min_loss = loss
+            return self.l, 0
+        else:
+            self.internal_step += 1
+            stop_flag = 0 if self.internal_step < self.max_internal_step else 1
+            return 0., stop_flag

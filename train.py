@@ -3,10 +3,9 @@ import time
 import numpy as np
 import torch
 import torch.optim as optim
-# from optim import SGD_step
 
 from utils import *
-from loss import MSELoss, regularize, lambda_decay
+from loss import MSELoss, regularize, lambda_decay, Large2zeroLambdaScheduler
 from dataset import init_dataset
 from arch import FC
 
@@ -25,9 +24,12 @@ def run_training(args):
     # initialize dataset
     xtr, ytr, xte, yte = init_dataset(args)
 
+    # torch.save(xtr, f'/scratch/izar/lpetrini/results/sphere_init/d{args.d}p{args.ptr}seed{args.dataseed}.torch')
+    # raise
+
     # initialize network function
     torch.manual_seed(args.netseed)
-    f = FC(args.h, args.d, bias=args.bias, w1_init=args.init_w1, w1_onsphere=args.w1_onsphere, w2_init=args.init_w2, device=device)
+    f = FC(args.h, args.d, bias=args.bias, w1_init=args.init_w1, w2_init=args.init_w2, device=device)
     if not args.train_w1:
         for param in [p for p in f.parameters()][:-1]:
             param.requires_grad = False
@@ -40,6 +42,12 @@ def run_training(args):
     # define optimizer
     optimizer = optim.SGD(f.parameters(), lr=args.lr * args.h, weight_decay=0)
     optimizer.zero_grad()
+    if args.w1_norm1:
+        f.project_weight()
+
+    # define regularization scheduler
+    assert args.l_decay != 'large_to_zero' # "Only implementing one kind of lr decay here!!"
+    # lambda_scheduler = Large2zeroLambdaScheduler(args.l)
 
     # define predictor
     def F(x):
@@ -100,26 +108,38 @@ def run_training(args):
     lossckpt = next(lossckpt_gen)
 
     start_time = time.time()
+    stop_flag = 0
     for epoch in range(args.maxstep):
 
-        if torch.isnan(ltr):
+        if stop_flag:
+            print("Stopping flag is True!")
             break
 
-        # SGD_step(f.w1, f.w2, ltr, lr=args.lr * args.h, proj_sphere=args.w1_onsphere)
+        if torch.isnan(ltr):
+            print('Train loss is NaN!!')
+            break
+
         ltr.backward()
+        if args.w1_norm1:
+            f.project_grad()
         optimizer.step()
 
         optimizer.zero_grad()
+        if args.w1_norm1:
+            f.project_weight()
 
         otr = F(xtr)
         ltr = loss(otr, ytr)
-        if args.l:
-            l = lambda_decay(args, epoch)
-            regularize(ltr, f, l, args)
-
         ltr_val = alpha * ltr.detach().item()
 
-        if ltr_val <= lossckpt:
+        if args.l:
+            l = lambda_decay(args, epoch)
+            # l, stop_flag = lambda_scheduler.step(ltr_val)
+            regularize(ltr, f, l, args)
+
+
+        if ltr_val <= lossckpt or epoch % (args.maxstep // 10) == 0:
+            print('LOSS CKP: saving net...')
             save_net()
             if args.count_atoms:
                 na, hist = count_atoms()
@@ -161,6 +181,19 @@ def run_training(args):
         "lckpt": lossckpt,
     }
 
-    res = {"args": args, "dynamics": dynamics_loss, "atoms": dynamics_atoms, "f": f_info, "learn": learning_params}
+    dataset = {
+        'xtr': xtr,
+        'ytr': ytr,
+        'xte': xte,
+        'yte': yte,
+    }
+
+    res = {
+        "args": args,
+        "dataset": dataset,
+        "dynamics": dynamics_loss,
+        "atoms": dynamics_atoms,
+        "f": f_info,
+        "learn": learning_params}
 
     yield res

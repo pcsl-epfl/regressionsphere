@@ -23,7 +23,7 @@ def ckp_init(args, init_loss):
         step += freq
 
     timeckpt_gen = iter(checkpoints)
-    lossckpt_gen = loss_checkpoint(args.alpha * init_loss)
+    lossckpt_gen = loss_checkpoint(init_loss)
 
     return timeckpt_gen, lossckpt_gen
 
