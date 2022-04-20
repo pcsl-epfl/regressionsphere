@@ -5,7 +5,7 @@ import torch
 import torch.optim as optim
 
 from utils import *
-from loss import MSELoss, regularize, lambda_decay, Large2zeroLambdaScheduler
+from loss import MSELoss, regularize, lambda_decay
 from dataset import init_dataset
 from arch import FC
 
@@ -24,9 +24,6 @@ def run_training(args):
     # initialize dataset
     xtr, ytr, xte, yte = init_dataset(args)
 
-    # torch.save(xtr, f'/scratch/izar/lpetrini/results/sphere_init/d{args.d}p{args.ptr}seed{args.dataseed}.torch')
-    # raise
-
     # initialize network function
     torch.manual_seed(args.netseed)
     f = FC(args.h, args.d, bias=args.bias, w1_init=args.init_w1, w2_init=args.init_w2, device=device)
@@ -44,10 +41,6 @@ def run_training(args):
     optimizer.zero_grad()
     if args.w1_norm1:
         f.project_weight()
-
-    # define regularization scheduler
-    assert args.l_decay != 'large_to_zero' # "Only implementing one kind of lr decay here!!"
-    # lambda_scheduler = Large2zeroLambdaScheduler(args.l)
 
     # define predictor
     def F(x):
@@ -71,6 +64,7 @@ def run_training(args):
         dynamics_state.append(state)
 
     def count_atoms():
+        """TODO: obsolete, have new implementation with hashing"""
         if args.count_atoms:
             w1 = f.w1.detach() * args.alpha ** .5
             w2 = f.w2.detach() * args.alpha ** .5
@@ -111,6 +105,10 @@ def run_training(args):
     stop_flag = 0
     for epoch in range(args.maxstep):
 
+        if epoch == args.lr_decay_epoch:
+            print('lr decay..!')
+            optimizer.param_groups[0]['lr'] /= 10
+
         if stop_flag:
             print("Stopping flag is True!")
             break
@@ -120,6 +118,8 @@ def run_training(args):
             break
 
         ltr.backward()
+        if args.conic_gd and (epoch > 5 or args.init_w2 != 'zero'):
+            f.conic_gd()
         if args.w1_norm1:
             f.project_grad()
         optimizer.step()
@@ -130,15 +130,15 @@ def run_training(args):
 
         otr = F(xtr)
         ltr = loss(otr, ytr)
+
         ltr_val = alpha * ltr.detach().item()
+        if ltr_val < 1e-30 and args.alpha > 0: stop_flag = True
 
         if args.l:
             l = lambda_decay(args, epoch)
-            # l, stop_flag = lambda_scheduler.step(ltr_val)
             regularize(ltr, f, l, args)
 
-
-        if ltr_val <= lossckpt or epoch % (args.maxstep // 10) == 0:
+        if ltr_val <= lossckpt or epoch % (args.maxstep // 50) == 0:
             print('LOSS CKP: saving net...')
             save_net()
             if args.count_atoms:

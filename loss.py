@@ -10,7 +10,10 @@ class MSELoss(torch.nn.Module):
         self.alpha = alpha
 
     def forward(self, output, target):
-        mse_loss = 0.5 * (output - target) ** 2 / self.alpha ** 1
+        if self.alpha != -1:
+            mse_loss = 0.5 * (output - target) ** 2 / self.alpha
+        else:
+            mse_loss = target - output
         return mse_loss.mean()
 
 def regularize(loss, f, l, args):
@@ -47,10 +50,12 @@ def lambda_decay(args, epoch):
         return 1 / (1 + epoch ** args.l_decay_param)
     elif args.l_decay == 'pl_exp':
         return args.l * math.exp(1 - epoch ** .5 / args.ptr ** .7) / (1 + epoch)
+    elif args.l_decay == 'exp':
+        return args.l * math.exp(1 - epoch ** args.l_decay_param)
     elif args.l_decay == 'none':
         return args.l
     elif args.l_decay == 'large_to_zero':
-        raise ValueError
+        raise NotImplementedError
         '''
             - save `min_loss`
             - wait 1 / lambda steps s.t. loss > min_loss

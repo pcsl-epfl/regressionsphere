@@ -15,6 +15,8 @@ class FC(nn.Module):
         :param scale: scale of the output function: `1/h` for the mean-field limit, `1/sqrt(h)` for the NTK limit.
         :param bool bias: first layer bias flag.
         :param device: cpu or cuda.
+        :param w1_init: probability distribution for *inner* weights initialization
+        :param w2_init: probability distribution for *outer* weights initialization
         """
         super(FC, self).__init__()
 
@@ -35,11 +37,15 @@ class FC(nn.Module):
 
         ### Outer weights initialization ###
         if w2_init == 'normal':
-            self.w2 = nn.Parameter(torch.randn(1, h, device=device).abs())
+            self.w2 = nn.Parameter(torch.randn(1, h, device=device))
         elif w2_init == 'zero':
             self.w2 = nn.Parameter(torch.zeros(1, h, device=device))
+        elif w2_init == 'one':
+            self.w2 = nn.Parameter(torch.randn(1, h, device=device).sign())
+        elif is_number(w2_init):
+            self.w2 = nn.Parameter(torch.randn(1, h, device=device) * float(w2_init))
         else:
-            raise ValueError('Weights initialization must be either `normal` or `zero`!')
+            raise ValueError('Weights initialization must be either `normal` or `zero` or float!')
 
     def forward(self, x):
         x = x @ self.w1.t() + self.b
@@ -53,3 +59,16 @@ class FC(nn.Module):
 
     def project_grad(self):
         self.w1.grad -= (self.w1.grad * self.w1).sum(dim=-1, keepdim=True) * self.w1
+
+    def conic_gd(self):
+        self.w1.grad /= self.w2.t().pow(self.pow)
+        if self.pow == 1:
+            self.w2.grad *= self.w2
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
