@@ -2,8 +2,7 @@ import torchvision
 from .utils import *
 from .gaussian_random_fields import gram_kn, grf_generator
 from .teacher import FcTeacher
-import scipy.io
-import math
+import sys
 
 def init_dataset(args):
     """
@@ -33,8 +32,23 @@ def init_dataset(args):
         r = torch.rand(p, 1).pow(1 / d)
         x = r * u / norm
     elif args.pofx == 'sphere':
-        x = torch.randn(p, d, device=args.device)
-        x /= x.norm(dim=-1, keepdim=True)
+        try:
+            if 'pyth-clone' in sys.path[1]:
+                print('loading data from izar...')
+                trainset_path = f'/work/pcsl-fdf/spherical-model/trainsets/trainset_randunif_d{d}_n{ptr}_{args.dataseed}.pt'
+            else:
+                print('loading data from pcslsrv...')
+                trainset_path = f'/home/lpetrini/data/spherical-model/trainset_randunif_d{d}_n{ptr}_{args.dataseed}.pt'
+            x = torch.load(trainset_path).to(args.device)
+            x = torch.cat([x, torch.randn(pte, d, device=args.device)])
+        except FileNotFoundError:
+            print('Input data file not found!!')
+            x = torch.randn(p, d, device=args.device)
+            x /= x.norm(dim=-1, keepdim=True)
+    elif args.pofx == 'spread':
+        trainset_path = f'/home/lpetrini/data/spherical-model/trainset_randspread_div{args.div:.01f}_d{d}_n{ptr}_{args.dataseed}.pt'
+        x = torch.load(trainset_path).to(args.device)
+        x = torch.cat([x, torch.randn(pte, d, device=args.device)])
     elif args.pofx == "mnist_pca":
         tr = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=True, download=True, transform=transform)
         te = torchvision.datasets.MNIST('~/.torchvision/datasets/MNIST', train=False, transform=transform)
@@ -64,23 +78,6 @@ def init_dataset(args):
         x, target = x[perm], target[perm]
         x = center_normalize(x).flatten(-2).to(args.device)
         target = torch.tensor([t in [0, 2, 3, 4, 6] for t in target], dtype=int, device=args.device).mul(2).add(-1)
-    elif args.pofx == '1d':
-        assert args.d == 2
-        mat = scipy.io.loadmat(f'/home/lpetrini/git/regressionsphere/dataset/1d/eric_P{args.ptr}.mat')
-
-        xtr = torch.from_numpy(mat['xd']).to(args.device)[:, 0]
-        xte = torch.from_numpy(mat['x'][0]).to(args.device)
-
-        def angleto2d(xt):
-            theta = 2 * math.pi * xt
-            return torch.stack([theta.cos(), theta.sin()]).t()
-
-        xtr = angleto2d(xtr)
-        xte = angleto2d(xte)
-        ytr = torch.ones(len(xtr), device=args.device)
-        yte = torch.ones(len(xte), device=args.device)
-
-        return xtr, ytr, xte, yte
     else:
         raise NotImplementedError
 
@@ -92,7 +89,7 @@ def init_dataset(args):
             target = grf_generator(teacher_cov, args.device)
         elif args.target == 'teacher':
             torch.manual_seed(0)
-            t = FcTeacher(d=args.d, h=1e6, a=args.act_power, act=args.teacher_act, device=args.device)
+            t = FcTeacher(d=args.d, h=1e7, a=args.act_power, act=args.teacher_act, device=args.device)
             target = t(x)
         else:
             raise NotImplementedError

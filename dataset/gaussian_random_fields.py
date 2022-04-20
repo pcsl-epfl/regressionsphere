@@ -79,7 +79,7 @@ def grf_generator(gram):
     :param gram: field covariance matrix
     :return: Gaussian random field with given covariance.
     """
-    assert gram.shape[-1] == gram.shape[-2], "Covariance matri must be squared!"
+    assert gram.shape[-1] == gram.shape[-2], "Covariance matrix must be squared!"
     N = torch.distributions.multivariate_normal.MultivariateNormal(
         torch.zeros(len(gram), device=gram.device), gram
     )
