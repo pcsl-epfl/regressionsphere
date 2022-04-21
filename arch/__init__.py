@@ -22,6 +22,7 @@ class FC(nn.Module):
 
         self.d = d
         self.scale = 1 / h if scale is None else scale
+        self.pow = 1
 
         ### Inner weights initialization ###
         assert w1_init in ['normal', 'unitary', 'fibonacci']
