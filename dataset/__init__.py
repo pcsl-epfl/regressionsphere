@@ -1,7 +1,7 @@
 import torchvision
 from .utils import *
 from .gaussian_random_fields import gram_kn, grf_generator
-from .teacher import FcTeacher
+from .teacher import FCTeacher
 import sys
 
 def init_dataset(args):
@@ -89,7 +89,7 @@ def init_dataset(args):
             target = grf_generator(teacher_cov, args.device)
         elif args.target == 'teacher':
             torch.manual_seed(0)
-            t = FcTeacher(d=args.d, h=1e7, a=args.act_power, act=args.teacher_act, device=args.device)
+            t = FCTeacher(d=args.d, h=1e7, a=args.act_power, act=args.teacher_act, device=args.device)
             target = t(x)
         else:
             raise NotImplementedError

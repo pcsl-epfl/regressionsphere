@@ -3,8 +3,9 @@ import torch
 
 def pca(x, d, whitening):
     """
-    :param x: [P, ...]
-    :return: [P, d]
+    Project x on its first d principal components.
+    :param x: [n, ...]
+    :return: [n, d]
     """
 
     z = x.flatten(1)
@@ -31,6 +32,11 @@ def dataset_to_tensors(dataset):
 
 
 def center_normalize(x):
+    """
+    Normalize dataset.
+    :param x: data to normalize [n, d]
+    :return: x centered and norm 1.
+    """
     x = x - x.mean(0)
     x = (x[0].numel() ** 0.5) * x / x.flatten(1).norm(dim=1).view(-1, *(1,) * (x.dim() - 1))
     return x

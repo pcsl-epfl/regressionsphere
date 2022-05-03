@@ -3,20 +3,18 @@ import math
 
 
 # Kernel functions `kn` for ReLU^n net
+
 def k0(phi):
     return (math.pi - phi) / (math.pi)
 
-
 def k1(phi):
     return (torch.sin(phi) + (math.pi - phi) * torch.cos(phi)) / (math.pi)
-
 
 def k2(phi):
     return (
         3.0 * torch.sin(phi) * torch.cos(phi)
         + (math.pi - phi) * (1.0 + 2.0 * torch.cos(phi) * torch.cos(phi))
     ) / math.pi
-
 
 def k3(phi):
     return (
@@ -61,7 +59,7 @@ def gram_kn(X, Y, degree):
 
 def gram_ntk(X, Y):
     """
-    X, Y tensors of shape (P, d)
+    X, Y tensors of shape (n, d)
     """
     assert Y.size(1) == X.size(1), "data have different dimension!"
 

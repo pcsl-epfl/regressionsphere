@@ -1,9 +1,22 @@
 import torch
 import torch.nn.functional as F
 
-class FcTeacher(torch.nn.Module):
+class FCTeacher(torch.nn.Module):
+    """
+        One-hidden-layer fully-connected *teacher* network with NTK scaling.
+        This implementation allows very large network widths (e.g. H=1e8), corresponding to a Gaussian random process.
+    """
     def __init__(self, h, d, h_batch=10000, act='relu', a=1, device='cpu'):
-        super(FcTeacher, self).__init__()
+        """
+
+        :param h: network width
+        :param d: input dimension
+        :param h_batch: the forward pass is computed for batches of neurons. This number should be the max allowed by GPU memory.
+        :param act: either `relu` or `abs`
+        :param a: activation function power
+        :param device: `cuda` or `cpu`
+        """
+        super(FCTeacher, self).__init__()
 
         self.d = d
         self.h = int(h)

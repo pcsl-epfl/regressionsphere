@@ -54,15 +54,6 @@ def lambda_decay(args, epoch):
         return args.l * math.exp(1 - epoch ** args.l_decay_param)
     elif args.l_decay == 'none':
         return args.l
-    elif args.l_decay == 'large_to_zero':
-        raise NotImplementedError
-        '''
-            - save `min_loss`
-            - wait 1 / lambda steps s.t. loss > min_loss
-            - lambda <- 0
-            - wait 1e5 steps
-            - STOP
-        '''
     else:
         raise ValueError("Regularization decay must be `pow_law` or `pl_exp`.")
 

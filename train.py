@@ -1,6 +1,5 @@
 import copy
 import time
-import numpy as np
 import torch
 import torch.optim as optim
 
@@ -8,6 +7,7 @@ from utils import *
 from loss import MSELoss, regularize, lambda_decay
 from dataset import init_dataset
 from arch import FC
+from arch.counting_atoms import compute_atoms_norm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.set_default_dtype(torch.float64)
@@ -64,16 +64,13 @@ def run_training(args):
         dynamics_state.append(state)
 
     def count_atoms():
-        """TODO: obsolete, have new implementation with hashing"""
         if args.count_atoms:
             w1 = f.w1.detach() * args.alpha ** .5
             w2 = f.w2.detach() * args.alpha ** .5
-            norm = (w1.norm(dim=-1) * w2.abs())
-            hist = torch.histogram(torch.atan2(*w1.t()[:2]).cpu(), weight=norm[0].cpu(), bins=torch.linspace(0, math.pi, 512), density=True).hist
-            a = np.unique((w1[norm[0] > .01] @ xtr.t()).sign().cpu(), axis=0, return_counts=True)[1]
-            return sum(a > 1), hist
+            atoms_norm_values = compute_atoms_norm(xtr, w1=w1, w2=w2)
+            return len(atoms_norm_values), atoms_norm_values
         else:
-            return None, None
+            return None
 
     otr = F(xtr)
     ltr = loss(otr, ytr)
@@ -142,8 +139,8 @@ def run_training(args):
             print('LOSS CKP: saving net...')
             save_net()
             if args.count_atoms:
-                na, hist = count_atoms()
-                dynamics_atoms.append({"N_A": na, "hist": hist})
+                na, a_norm = count_atoms()
+                dynamics_atoms.append({"N_A": na, "a_norm": a_norm})
             lossckpt = next(lossckpt_gen)
 
         if (epoch + 1) == timeckpt:
@@ -157,8 +154,8 @@ def run_training(args):
                   flush=True)
             dynamics_loss.append([epoch + 1, ltr_val, lte])
             if args.count_atoms:
-                na, hist = count_atoms()
-                dynamics_atoms.append({"N_A": na, "hist": hist})
+                na, a_norm = count_atoms()
+                dynamics_atoms.append({"N_A": na, "a_norm": a_norm})
             lossckpt = next(lossckpt_gen)
             timeckpt = next(timeckpt_gen)
 
