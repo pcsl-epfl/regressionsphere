@@ -95,10 +95,11 @@ def kernel_regression(K_trtr, K_tetr, y_tr, y_te, ridge):
     :param ridge: ridge value
     :return: mean square error.
     """
-    alpha = (
-        torch.linalg.inv(K_trtr + ridge * torch.eye(y_tr.size(0), device=K_trtr.device))
-        @ y_tr
+    alpha = torch.linalg.solve(
+        K_trtr + ridge * torch.eye(y_tr.size(0), device=K_trtr.device),
+        y_tr
     )
+
     f = K_tetr @ alpha
     mse = (f - y_te).pow(2).mean()
     return mse

@@ -1,5 +1,8 @@
 ## Regression of a target function on the sphere
 
+### Neural network training
+Run ``main.py``
+
 **Architecture.**
 Train a one hidden-layer fully-connected neural network on the mean square error.
     
@@ -17,3 +20,13 @@ The *target* is either
 - a *regularization* `args.l` on the l2 norm of the parameters (`args.reg = 'l2'`), on the path norm `||w1|| * |w2|` (`args.reg = 'l1'`) or on the l1 norm `|w2|` by fixing the first layer weights on the unit sphere `||w1|| = 1` (`args.reg = 'l1'` and `args.w1_norm1 = 1`).
 
 Additionally, *conic* gradient descent [Chizat and Bach, 2018] can be performed by setting `args.conic_gd = 1`.
+
+
+### Kernel Ridge Regression (KRR)
+Run ``main_KRR.py``
+
+**Student kernel.** Analytical NTK of an infinite-width one-hidden-layer neural network.
+
+**Data-set.** *see above.*
+
+**Ridge.** The regularization or ridge parameter can be fixed by `args.l` (default `0`).
