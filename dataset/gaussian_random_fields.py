@@ -84,22 +84,3 @@ def grf_generator(gram):
     y = N.sample()
     return y
 
-
-def kernel_regression(K_trtr, K_tetr, y_tr, y_te, ridge):
-    """
-    Perform kernel ridge regression
-    :param K_trtr: train-train gram matrix
-    :param K_tetr: test-train gram matrix
-    :param y_tr: training labels
-    :param y_te: testing labels
-    :param ridge: ridge value
-    :return: mean square error.
-    """
-    alpha = torch.linalg.solve(
-        K_trtr + ridge * torch.eye(y_tr.size(0), device=K_trtr.device),
-        y_tr
-    )
-
-    f = K_tetr @ alpha
-    mse = (f - y_te).pow(2).mean()
-    return mse

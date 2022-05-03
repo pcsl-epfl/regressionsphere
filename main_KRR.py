@@ -9,7 +9,28 @@ from dataset.gaussian_random_fields import *
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.set_default_dtype(torch.float64)
 
-def krr(args):
+
+def kernel_regression(K_trtr, K_tetr, y_tr, y_te, ridge):
+    """
+    Perform kernel ridge regression
+    :param K_trtr: train-train gram matrix
+    :param K_tetr: test-train gram matrix
+    :param y_tr: training labels
+    :param y_te: testing labels
+    :param ridge: ridge value
+    :return: mean square error.
+    """
+    alpha = torch.linalg.solve(
+        K_trtr + ridge * torch.eye(y_tr.size(0), device=K_trtr.device),
+        y_tr
+    )
+
+    f = K_tetr @ alpha
+    mse = (f - y_te).pow(2).mean()
+    return mse
+
+
+def run_krr(args):
 
     t1 = time.time()
     def timing_fun(t1):
@@ -80,7 +101,7 @@ def main():
     saved = False
 
     try:
-        for res in krr(args):
+        for res in run_krr(args):
             with open(args.pickle, "wb") as f:
                 torch.save(args, f, _use_new_zipfile_serialization=False)
                 torch.save(res, f, _use_new_zipfile_serialization=False)
