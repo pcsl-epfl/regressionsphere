@@ -3,11 +3,17 @@
 **Architecture.**
 Train a one hidden-layer fully-connected neural network on the mean square error.
     
-**Data-set.** Data samples `x` can be drawn from the `d`-dimensional normal distribution (`args.dataset = normal`), uniform distribution inside the sphere (`uniform`) or uniform distribution on the spherical surface (`sphere`).
-The target is either the sample norm `||x||`  (`args.target = norm`) or a Gaussian random field computed through an ~infinite-width teacher network (`args.target = teacher`) with `relu` or `abs` activation function to some power `a`.
+**Data-set.** *Data samples* `x` can be drawn from 
+- the `d`-dimensional normal distribution, `args.dataset = normal`;
+- uniform distribution inside the sphere, `uniform`;
+- or uniform distribution on the spherical surface, `sphere`.
 
-**Algorithm.** Full batch gradient descent can be performed with 
-- the alpha-trick (i.e. setting `args.alpha` larger (lazy) or smaller (feature) than one)
-- a regularization `args.l` on the l2 norm of the parameters (`args.reg = 'l2'`), on the path norm `||w1|| * |w2|` (`args.reg = 'l1'`) or on the l1 norm `|w2|` by fixing the first layer weights on the unit sphere `||w1|| = 1` (`args.reg = 'l1'` and `args.w1_norm1 = 1`).
+The *target* is either 
+- the sample norm `||x||`, `args.target = norm`;
+- or a Gaussian random field computed through an ~infinite-width teacher network (`args.target = teacher`) with `relu` or `abs` activation function to some power `a`.
 
-Additionally, conic gradient descent [Chizat and Bach, 2018] can be performed by setting `args.conic_gd = 1`.
+**Algorithm.** *Full batch gradient descent* can be performed with 
+- the *alpha-trick* (i.e. setting `args.alpha` larger (lazy) or smaller (feature) than one)
+- a *regularization* `args.l` on the l2 norm of the parameters (`args.reg = 'l2'`), on the path norm `||w1|| * |w2|` (`args.reg = 'l1'`) or on the l1 norm `|w2|` by fixing the first layer weights on the unit sphere `||w1|| = 1` (`args.reg = 'l1'` and `args.w1_norm1 = 1`).
+
+Additionally, *conic* gradient descent [Chizat and Bach, 2018] can be performed by setting `args.conic_gd = 1`.
