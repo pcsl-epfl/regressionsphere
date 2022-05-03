@@ -37,7 +37,12 @@ def krr(args):
     mse = kernel_regression(ktrtr, ktetr, ytr, yte, args.l)
     timing_fun(t1)
 
-    yield mse
+    res = {
+        'args': args,
+        'mse': mse,
+    }
+
+    yield res
 
 
 def main():
