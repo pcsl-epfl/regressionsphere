@@ -70,7 +70,7 @@ def run_training(args):
             atoms_norm_values = compute_atoms_norm(xtr, w1=w1, w2=w2)
             return len(atoms_norm_values), atoms_norm_values
         else:
-            return None
+            return None, None
 
     otr = F(xtr)
     ltr = loss(otr, ytr)
