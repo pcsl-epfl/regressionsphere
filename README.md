@@ -13,7 +13,7 @@ The *target* is either
 - or a Gaussian random field computed through an ~infinite-width teacher network (`args.target = teacher`) with `relu` or `abs` activation function to some power `a`.
 
 **Algorithm.** *Full batch gradient descent* can be performed with 
-- the *alpha-trick* (i.e. setting `args.alpha` larger (lazy) or smaller (feature) than one)
+- the *alpha-trick* by setting `args.alpha` larger (lazy) or smaller (feature) than one. 
 - a *regularization* `args.l` on the l2 norm of the parameters (`args.reg = 'l2'`), on the path norm `||w1|| * |w2|` (`args.reg = 'l1'`) or on the l1 norm `|w2|` by fixing the first layer weights on the unit sphere `||w1|| = 1` (`args.reg = 'l1'` and `args.w1_norm1 = 1`).
 
 Additionally, *conic* gradient descent [Chizat and Bach, 2018] can be performed by setting `args.conic_gd = 1`.

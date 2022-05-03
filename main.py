@@ -55,7 +55,7 @@ def main():
 
     ### alpha-trick ###
     parser.add_argument("--alpha", type=float, metavar="alpha", default=1.)
-    parser.add_argument("--minus_f0", type=int, default=1)
+    parser.add_argument("--minus_f0", type=int, default=0)
 
     parser.add_argument("--count_atoms", type=int, default=0, help="count the number of atoms")
     """
@@ -73,6 +73,8 @@ def main():
     if args.pte == -1:
         args.pte = args.ptr * 4
     args.maxstep = int(args.maxstep)
+    if args.alpha > 1:
+        assert args.minus_f0 == 1, 'The lazy regime requires subtracting the network function at initialization to the predictor, i.e. setting `args.minus_f0 = 1`!!'
 
     torch.save(args, args.pickle)
     saved = False
