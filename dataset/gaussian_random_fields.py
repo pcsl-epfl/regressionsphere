@@ -2,7 +2,7 @@ import torch
 import math
 
 
-# Kernel functions `kn` for ReLU^n net
+# Random-features kernel functions `kn` for ReLU^n infinite-width net
 
 def k0(phi):
     return (math.pi - phi) / (math.pi)
@@ -40,10 +40,10 @@ def laplace(phi, c=0.001):
 def gram_kn(X, Y, degree):
     """
     Compute the one-hidden-layer ReLU^deg.-net random-features gram matrix.
-    :param X: torch.tensor of shape (N, d)
-    :param Y: torch.tensor of shape (N, d)
+    :param X: torch.tensor of shape (n, d)
+    :param Y: torch.tensor of shape (n, d)
     :param degree: return RF kernel given by ReLU^degree net.
-    :return: gram matrix (N, N)
+    :return: gram matrix (n, n)
     """
     assert Y.size(1) == X.size(1), "data have different dimension!"
 
@@ -59,7 +59,9 @@ def gram_kn(X, Y, degree):
 
 def gram_ntk(X, Y):
     """
-    X, Y tensors of shape (n, d)
+    Compute the gram matrix of the analytical NTK of a one-hidden-layer infinite-width FCN.
+    :param X: torch.tensor of shape (n, d)
+    :param Y: torch.tensor of shape (n, d)
     """
     assert Y.size(1) == X.size(1), "data have different dimension!"
 

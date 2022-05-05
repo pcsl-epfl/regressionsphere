@@ -149,7 +149,7 @@ def run_training(args):
             lte = alpha * loss(ote, yte).item()
             avg_epoch_time = (time.time() - start_time) / (epoch + 1)
             print(f"[Epoch : {int(epoch+1)} / {int(args.maxstep)}, "
-                  f"ETA: {print_time(avg_epoch_time * (args.maxstep - epoch - 1))}] "
+                  f"ETA: {format_time(avg_epoch_time * (args.maxstep - epoch - 1))}] "
                   f"\t tr_loss: {ltr_val:.02e}, \t te_loss: {lte:.02e}",
                   flush=True)
             dynamics_loss.append([epoch + 1, ltr_val, lte])

@@ -1,3 +1,7 @@
+"""
+    Checkpoints generators and time formatting.
+"""
+
 import math
 
 def loss_checkpoint(init, end=None):
@@ -28,7 +32,13 @@ def ckp_init(args, init_loss):
     return timeckpt_gen, lossckpt_gen
 
 # timing function
-def print_time(elapsed_time):
+def format_time(elapsed_time):
+    """
+    format time into hours, minutes, seconds.
+    :param float elapsed_time: elapsed time in seconds
+    :return str: time formatted as `{hrs}h{mins}m{secs}s`
+    """
+
     elapsed_seconds = round(elapsed_time)
 
     m, s = divmod(elapsed_seconds, 60)

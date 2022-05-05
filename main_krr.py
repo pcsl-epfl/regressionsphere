@@ -35,7 +35,7 @@ def run_krr(args):
     t1 = time.time()
     def timing_fun(t1):
         t2 = time.time()
-        print(print_time(t2 - t1))
+        print(format_time(t2 - t1))
         t1 = t2
         return t1
 

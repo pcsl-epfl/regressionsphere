@@ -23,10 +23,10 @@ Additionally, *conic* gradient descent [Chizat and Bach, 2018] can be performed 
 
 
 ### Kernel Ridge Regression (KRR)
-Run ``main_KRR.py``
+Run ``main_krr.py``
 
 **Student kernel.** Analytical NTK of an infinite-width one-hidden-layer neural network.
 
 **Data-set.** *see above.*
 
-**Ridge.** The regularization or ridge parameter can be fixed by `args.l` (default `0`).
+**Ridge.** The regularization or ridge parameter can be fixed by `args.l` (default: `0`).
