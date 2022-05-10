@@ -1,6 +1,8 @@
-## Regression of a target function on the sphere
+## Regression of a Target Function on the Sphere
 
-### Neural network training
+Code for the paper [arxiv](arxiv). Details for running experiments for each figure can be found in `experiments.md`.
+
+### Neural Network Training
 Run ``main.py``
 
 **Architecture.**
