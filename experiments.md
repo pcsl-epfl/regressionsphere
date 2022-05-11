@@ -2,7 +2,7 @@
 
 Experiments are run using `grid`, [github.com/mariogeiger/grid](https://github.com/mariogeiger/grid/tree/master/grid).
 
-### Figure X
+### Figure 3
 Neural network learning a constant function on the sphere with small **L1 regularization**:
 - `d = 2` (here convergence is very slow, conic gradient descent [Chizat and Bach, 2018] is employed to speed it up)
 ```
@@ -30,7 +30,8 @@ grun python main_krr.py --target norm --pofx sphere --pte 10000
 " --ptr 1024 512 256 128 32 16 8 --l 0 --d 2 3 5 --dataseed 0 1 2 3 4 5 6 7 8 9
 ```
 
-### Figure X
+### Figure H.3
+
 Neural network learning a constant function on the sphere with the **alpha-trick**:
 - `d = 2`
 ```
@@ -53,7 +54,7 @@ grun python main.py
 
 The functions for counting the number of atoms can be found in `.arch.counting_atoms.py`.
 
-### Figure X
+### Figure H.1
 
 Learning a GRF on the sphere. The teacher is an infinite-width FCN with `|.|^a` activation function, `a` controls the GRF smoothness.
 
@@ -80,7 +81,7 @@ grun python main_krr.py --pofx sphere --target teacher --teacher_act abs --pte 1
 " --ptr 8192 4096 2048 1024 512 256 128 32 16 8 --act_power 1 6 --l 0 --d 5 --dataseed 0 1 2 3 4 5 6 7 8 9
 ```
 
-### Figure X
+### Figure 1
 
 Experiments regarding FCNs training on images are run using the gradient flow approximation introduced in [Geiger et al. 2020](https://arxiv.org/abs/1906.08034), the corresponding code can be found here [github.com/leonardopetrini/feature_lazy](https://github.com/leonardopetrini/feature_lazy).
 
@@ -94,7 +95,7 @@ python -m grid /home/results/fc_on_images --n 16 "grun python main.py
 
 SVC trainings are run using `sklearn.svm.SVC`.
 
-### Figure X
+### Figure 4
 
 Image deformations are computed following [Petrini et al. 2021](https://arxiv.org/abs/2105.02468), the code can be found at [github.com/pcsl-epfl/diffeomorphism](https://github.com/pcsl-epfl/diffeomorphism).
 
