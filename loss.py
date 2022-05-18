@@ -55,7 +55,7 @@ def lambda_decay(args, epoch):
     elif args.l_decay == 'none':
         return args.l
     else:
-        raise ValueError("Regularization decay must be `pow_law` or `pl_exp`.")
+        raise ValueError("Regularization decay must be `pow_law` or `pl_exp`, `exp` or `none`.")
 
 class Large2zeroLambdaScheduler:
     def __init__(self, l):

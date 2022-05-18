@@ -14,7 +14,7 @@ def main():
     """
     parser.add_argument("--d", metavar="d", type=int, help="dimension of the input")
     parser.add_argument("--dataseed", type=int, help="dataset seed", default=0)
-    parser.add_argument("--pofx", type=str, help="pdf of x", default="normal")
+    parser.add_argument("--pofx", type=str, help="pdf of x", default="sphere")
     parser.add_argument("--div", type=float, help="distance spread", default=2.0)
 
     ### target ###
@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--w1_norm1", type=int, default=0, help="constrain w1 on the sphere")
 
     """
-           TRAINING ARGS
+        TRAINING ARGS
     """
     parser.add_argument("--ptr", metavar="P", type=int, help="size of the training set")
     parser.add_argument("--pte", type=int, help="size of the validation set", default=8192)

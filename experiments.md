@@ -1,4 +1,4 @@
-## Reproducing Figures of the Paper [---]
+## Reproducing figures of the paper *Learning features can lead to overfitting in neural networks*
 
 Experiments are run using `grid`, [github.com/mariogeiger/grid](https://github.com/mariogeiger/grid/tree/master/grid).
 
@@ -30,7 +30,7 @@ grun python main_krr.py --target norm --pofx sphere --pte 10000
 " --ptr 1024 512 256 128 32 16 8 --l 0 --d 2 3 5 --dataseed 0 1 2 3 4 5 6 7 8 9
 ```
 
-### Figure H.3
+### Figure G.3
 
 Neural network learning a constant function on the sphere with the **alpha-trick**:
 - `d = 2`
@@ -54,9 +54,9 @@ grun python main.py
 
 The functions for counting the number of atoms can be found in `.arch.counting_atoms.py`.
 
-### Figure H.1
+### Figure G.1
 
-Learning a GRF on the sphere. The teacher is an infinite-width FCN with `|.|^a` activation function, `a` controls the GRF smoothness.
+Learning a GRF on the sphere. The teacher is an ~infinite-width (`H = 1e7`) FCN with `|.|^a` activation function, `a` controls the GRF smoothness `\nu_t = a + 1/2`.
 
 Neural network:
 - `a = 1`
@@ -93,9 +93,9 @@ python -m grid /home/results/fc_on_images --n 16 "grun python main.py
    " --seed_trainset 0 1 2 3 4 5 6 7 8 9 --dataset:str 'mnist' 'fashion' 'cifar10' --seed_init 0 1 2 3 4 5 6 7 8 9 --ptr 10000 5000 2500 1250 512 256 128 64 32
 ```
 
-SVC trainings are run using `sklearn.svm.SVC`.
+SVC trainings are performed using `sklearn.svm.SVC`.
 
-### Figure 4
+### Figure 5
 
 Image deformations are computed following [Petrini et al. 2021](https://arxiv.org/abs/2105.02468), the code can be found at [github.com/pcsl-epfl/diffeomorphism](https://github.com/pcsl-epfl/diffeomorphism).
 
