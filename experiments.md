@@ -1,6 +1,6 @@
-## Reproducing figures of the paper *Learning features can lead to overfitting in neural networks*
+## Reproducing figures of the paper *Learning sparse features can lead to overfitting in neural networks*
 
-Experiments are run using `grid`, [github.com/mariogeiger/grid](https://github.com/mariogeiger/grid/tree/master/grid).
+Experiments are run using [`grid`](https://github.com/mariogeiger/grid/tree/master/grid).
 
 ### Figure 3
 Neural network learning a constant function on the sphere with small **L1 regularization**:

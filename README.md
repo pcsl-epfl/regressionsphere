@@ -1,6 +1,7 @@
 ## Regression of a Target Function on the Sphere
 
-Code for the paper [arxiv](arxiv). Details for running experiments for each figure can be found in `experiments.md`.
+Code for the paper *Learning sparse features can lead to overfitting in neural networks*. 
+Details for running experiments can be found in `experiments.md`.
 
 ### Neural Network Training
 Run ``main.py``
