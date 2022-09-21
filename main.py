@@ -19,7 +19,9 @@ def main():
 
     ### target ###
     parser.add_argument("--target", type=str, help="target function", default="norm")
+    parser.add_argument("--teacherseed", type=str, default=-1, help="teacher seed")
     parser.add_argument("--teacher_act", type=str, default='abs', help="activation [relu, abs]")
+    parser.add_argument("--teacher_width", type=float, default=1e7, help="teacher width")
     parser.add_argument("--act_power", type=float, default=2, help="power for the teacher activation")
 
     """
@@ -70,6 +72,8 @@ def main():
 
     if args.netseed == -1:
         args.netseed = args.dataseed
+    if args.teacherseed == -1:
+        args.teacherseed = args.dataseed
     if args.pte == -1:
         args.pte = args.ptr * 4
     args.maxstep = int(args.maxstep)

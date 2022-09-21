@@ -20,7 +20,7 @@ class FCTeacher(torch.nn.Module):
 
         self.d = d
         self.h = int(h)
-        self.h_batch = int(h_batch)
+        self.h_batch = min(int(h_batch), self.h)
         self.a = a
         self.device = device
         if act == 'relu':
@@ -40,5 +40,8 @@ class FCTeacher(torch.nn.Module):
             o = (x @ w1.t())
             o = self.act(o).pow(self.a)
             out += o @ torch.randn(self.h_batch, device=o.device).sign()
+
+        if self.h < 1e4:
+            self.w1 = w1
 
         return out / self.h ** .5

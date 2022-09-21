@@ -22,7 +22,7 @@ def run_training(args):
     args.device = device
 
     # initialize dataset
-    xtr, ytr, xte, yte = init_dataset(args)
+    xtr, ytr, xte, yte, teacher = init_dataset(args)
 
     # initialize network function
     torch.manual_seed(args.netseed)
@@ -183,6 +183,7 @@ def run_training(args):
         'ytr': ytr,
         'xte': xte,
         'yte': yte,
+        'teacher': teacher,
     }
 
     res = {

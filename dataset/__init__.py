@@ -7,8 +7,8 @@ import sys
 def init_dataset(args):
     """
     Initialize the sphere dataset for regression.
-    Data-points are sampled from a Gaussian or uniform pdf in the d-sphere.
-    The target function is the data-points norm.
+    Data-points are sampled from a Gaussian or uniform pdf in/on the d-sphere.
+    The target function is the data-points norm or a Gaussian random field.
     :param args: parser arguments.
     :return: (trainset samples, trainset targets, testset samples, testset targets).
     """
@@ -23,6 +23,7 @@ def init_dataset(args):
     torch.manual_seed(args.dataseed)
 
     target = None
+    teacher = None
 
     if args.pofx == 'normal':
         x = torch.randn(p, d, device=args.device) / d ** .5
@@ -88,9 +89,9 @@ def init_dataset(args):
             teacher_cov = gram_kn(x, x, degree=int(args.target[-1]))
             target = grf_generator(teacher_cov, args.device)
         elif args.target == 'teacher':
-            torch.manual_seed(0)
-            t = FCTeacher(d=args.d, h=1e7, a=args.act_power, act=args.teacher_act, device=args.device)
-            target = t(x)
+            torch.manual_seed(args.teacherseed)
+            teacher = FCTeacher(d=args.d, h=args.teacher_width, a=args.act_power, act=args.teacher_act, device=args.device)
+            target = teacher(x)
         else:
             raise NotImplementedError
 
@@ -99,6 +100,6 @@ def init_dataset(args):
     xte = x[ptr:]
     yte = target[ptr:]
 
-    return xtr, ytr, xte, yte
+    return xtr, ytr, xte, yte, teacher
 
 

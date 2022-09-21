@@ -1,6 +1,6 @@
 ## Regression of a Target Function on the Sphere
 
-Code for the paper *Learning sparse features can lead to overfitting in neural networks*. 
+Code for the paper [*Learning sparse features can lead to overfitting in neural networks*](https://arxiv.org/abs/2206.12314) appeared at NeurIPS 2022. 
 Details for running experiments can be found in `experiments.md`.
 
 ### Neural Network Training
