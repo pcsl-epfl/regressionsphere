@@ -3,7 +3,7 @@ L. Petrini, F. Cagnetta, E. Vanden-Eijnden, M. Wyart. [Arxiv: 2206.12314](https:
 
 Experiments are run using [`grid`](https://github.com/mariogeiger/grid/tree/master/grid).
 
-### Figure 3
+### Figure 4
 Neural network learning a constant function on the sphere with small **L1 regularization**:
 - `d = 2` (here convergence is very slow, conic gradient descent [Chizat and Bach, 2018] is employed to speed it up)
 ```
@@ -96,7 +96,7 @@ python -m grid /home/results/fc_on_images --n 16 "grun python main.py
 
 SVC trainings are performed using `sklearn.svm.SVC`.
 
-### Figure 5
+### Figure 6
 
 Image deformations are computed following [Petrini et al. 2021](https://arxiv.org/abs/2105.02468), the code can be found at [github.com/pcsl-epfl/diffeomorphism](https://github.com/pcsl-epfl/diffeomorphism).
 
