@@ -17,8 +17,6 @@ Train a one hidden-layer fully-connected neural network on the mean square error
 The *target* is either 
 - the sample norm `||x||`, `args.target = norm`;
 - or a Gaussian random field computed through an ~infinite-width teacher network (`args.target = teacher`) with `relu` or `abs` activation function to some power `a`.
-Here examples of the Gaussian random field defined on the sphere in `d=3`:
-<img src="https://github.com/pcsl-epfl/regressionsphere/blob/main/spherical_data.png" alt="data_sample" width="600"/>
 
 **Algorithm.** *Full batch gradient descent* can be performed with 
 - the *alpha-trick* by setting `args.alpha` larger (lazy) or smaller (feature) than one. 

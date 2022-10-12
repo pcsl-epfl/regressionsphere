@@ -1,5 +1,6 @@
-## Reproducing figures of the paper *Learning sparse features can lead to overfitting in neural networks*
-L. Petrini, F. Cagnetta, E. Vanden-Eijnden, M. Wyart. [Arxiv: 2206.12314](https://arxiv.org/abs/2206.12314)
+## Reproducing figures of the paper *"Learning sparse features can lead to overfitting in neural networks"*
+L. Petrini, F. Cagnetta, E. Vanden-Eijnden, M. Wyart. @NeurIPS2022
+ [arXiv: 2206.12314](https://arxiv.org/abs/2206.12314)
 
 Experiments are run using [`grid`](https://github.com/mariogeiger/grid/tree/master/grid).
 
